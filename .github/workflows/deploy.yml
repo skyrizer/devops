@@ -5,7 +5,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build_and_deploy:
+  build_and_deploy_container:
     runs-on: self-hosted
 
     steps:
@@ -31,3 +31,16 @@ jobs:
             --name landing-page \
             -p 8080:80 \
             ${{ secrets.DOCKERHUB_USERNAME }}/landing-page:latest
+
+  deploy_apache:
+    needs: build_and_deploy_container
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Copy files to deployment folder
+        run: |
+          DEST=/var/www/html/yourproject
+          sudo cp -r ./* $DEST
