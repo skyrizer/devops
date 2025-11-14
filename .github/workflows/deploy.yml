@@ -1,20 +1,33 @@
-name: Deploy HTML
+name: Deploy Docker App
 
 on:
   push:
-    branches:
-      - main
+    branches: [ "main" ]
 
 jobs:
-  deploy:
+  build_and_deploy:
     runs-on: self-hosted
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      - name: Deploy to server folder
+      - name: Login to Docker Hub
+        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+      - name: Build image
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/landing-page:latest .
+
+      - name: Push image
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/landing-page:latest
+
+      - name: Stop and remove old container
         run: |
-          DEST=/var/www/html/yourproject
-          sudo mkdir -p $DEST
-          sudo cp -r ./* $DEST
+          docker rm -f landing-page || true
+
+      - name: Run new container
+        run: |
+          docker run -d \
+            --name landing-page \
+            -p 80:80 \
+            ${{ secrets.DOCKERHUB_USERNAME }}/landing-page:latest

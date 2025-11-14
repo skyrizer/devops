@@ -1,0 +1,7 @@
+version: "3"
+services:
+  landing:
+    image: yourname/landing-page:latest
+    ports:
+      - "80:80"
+    restart: always
