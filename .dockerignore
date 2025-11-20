@@ -1,0 +1,11 @@
+.git
+.gitignore
+node_modules
+bin
+obj
+*.md
+*.log
+*.txt
+docker-compose*
+Dockerfile
+publish/
